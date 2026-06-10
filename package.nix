@@ -146,10 +146,6 @@ stdenv.mkDerivation {
     mkdir -p "$out/share/icons/hicolor/128x128/apps"
     cp ${./cheatengine.png} "$out/share/icons/hicolor/128x128/apps/cheatengine.png"
 
-    # Install desktop file
-    mkdir -p "$out/share/applications"
-    cp ${desktopItem}/share/applications/*.desktop "$out/share/applications/"
-
     runHook postInstall
   '';
 
