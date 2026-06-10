@@ -55,23 +55,8 @@ let
       "Debugger"
     ];
   };
-in
-stdenv.mkDerivation {
-  inherit pname version;
 
-  src = fetchurl {
-    url = "https://cheatengine.org/download/CheatEngineLinux${lib.replaceStrings ["."] [""] version}.zip";
-    hash = "sha256-Lv/pYIAVVnNyzMle0FZWT/7tfYKQI45jeBFbLiEd164=";
-  };
-
-  nativeBuildInputs = [
-    unzip
-    autoPatchelfHook
-    makeWrapper
-    copyDesktopItems
-  ];
-
-  buildInputs = [
+  runtimeDeps = [
     stdenv.cc.cc.lib # libstdc++
     libX11
     libSM
@@ -101,6 +86,25 @@ stdenv.mkDerivation {
     dbus
     wayland
   ];
+
+  libPath = lib.makeLibraryPath runtimeDeps;
+in
+stdenv.mkDerivation {
+  inherit pname version;
+
+  src = fetchurl {
+    url = "https://cheatengine.org/download/CheatEngineLinux${lib.replaceStrings ["."] [""] version}.zip";
+    hash = "sha256-Lv/pYIAVVnNyzMle0FZWT/7tfYKQI45jeBFbLiEd164=";
+  };
+
+  nativeBuildInputs = [
+    unzip
+    autoPatchelfHook
+    makeWrapper
+    copyDesktopItems
+  ];
+
+  buildInputs = runtimeDeps;
 
   sourceRoot = ".";
 
@@ -135,7 +139,12 @@ stdenv.mkDerivation {
     mkdir -p "$out/bin"
     makeWrapper "$out/opt/cheatengine/cheatengine-x86_64" "$out/bin/cheatengine" \
       --prefix LD_LIBRARY_PATH : "$out/opt/cheatengine" \
+      --prefix LD_LIBRARY_PATH : "${libPath}" \
       --chdir "$out/opt/cheatengine"
+
+    # Install icon
+    mkdir -p "$out/share/icons/hicolor/128x128/apps"
+    cp ${./cheatengine.png} "$out/share/icons/hicolor/128x128/apps/cheatengine.png"
 
     # Install desktop file
     mkdir -p "$out/share/applications"
