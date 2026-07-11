@@ -120,12 +120,18 @@ stdenv.mkDerivation {
   dontStrip = true;
   dontWrapQtApps = true;
 
-  installPhase = ''
+  installPhase = let
+    dirName = "CheatEngineLinux${lib.replaceStrings ["."] [""] version}";
+  in ''
     runHook preInstall
 
     # Install the application files
     mkdir -p "$out/opt/cheatengine"
-    cp -r ./* "$out/opt/cheatengine/"
+    if [ -d "${dirName}" ]; then
+      cp -r "${dirName}"/* "$out/opt/cheatengine/"
+    else
+      cp -r ./* "$out/opt/cheatengine/"
+    fi
 
     # Make main binary executable
     chmod +x "$out/opt/cheatengine/cheatengine-x86_64"
