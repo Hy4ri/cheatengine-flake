@@ -33,6 +33,7 @@
   libxcb,
   dbus,
   wayland,
+  wrapGAppsHook3,
   # Provided by the zip itself but we need system libstdc++
   gcc-unwrapped,
   copyDesktopItems,
@@ -104,6 +105,7 @@ stdenv.mkDerivation {
     autoPatchelfHook
     makeWrapper
     copyDesktopItems
+    wrapGAppsHook3
   ];
 
   buildInputs = runtimeDeps;
@@ -153,6 +155,12 @@ stdenv.mkDerivation {
     cp ${./cheatengine.png} "$out/share/icons/hicolor/128x128/apps/cheatengine.png"
 
     runHook postInstall
+  '';
+
+  preFixup = ''
+    gappsWrapperArgs+=(
+        --prefix XDG_DATA_DIRS : "${gtk3}/share/gsettings-schemas/${gtk3.name}"
+      )
   '';
 
   desktopItems = [ desktopItem ];
