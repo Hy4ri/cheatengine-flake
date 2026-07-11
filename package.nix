@@ -93,8 +93,10 @@ stdenv.mkDerivation {
   inherit pname version;
 
   src = fetchurl {
-    url = "https://cheatengine.org/download/CheatEngineLinux${lib.replaceStrings ["."] [""] version}.zip";
-    hash = "sha256-Lv/pYIAVVnNyzMle0FZWT/7tfYKQI45jeBFbLiEd164=";
+    url = "https://cheatengine.org/download/CheatEngineLinux${
+      lib.replaceStrings [ "." ] [ "" ] version
+    }.zip";
+    hash = "sha256-HjwxIGGicOZ8Z88hXMFkACcnC96mb9J5PdFWQUmS9tQ=";
   };
 
   nativeBuildInputs = [
@@ -118,14 +120,12 @@ stdenv.mkDerivation {
   dontStrip = true;
   dontWrapQtApps = true;
 
-  installPhase = let
-    dirName = "CheatEngineLinux${lib.replaceStrings ["."] [""] version}";
-  in ''
+  installPhase = ''
     runHook preInstall
 
     # Install the application files
     mkdir -p "$out/opt/cheatengine"
-    cp -r ${dirName}/* "$out/opt/cheatengine/"
+    cp -r ./* "$out/opt/cheatengine/"
 
     # Make main binary executable
     chmod +x "$out/opt/cheatengine/cheatengine-x86_64"
