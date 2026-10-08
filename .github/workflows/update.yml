@@ -74,6 +74,10 @@ jobs:
           chmod +x ./update-version.sh
           ./update-version.sh "${{ steps.check.outputs.version }}"
 
+      - name: Update flake.lock
+        if: steps.check.outputs.update_needed == 'true'
+        run: nix flake update
+
       - name: Verify Builds
         id: build_verify
         if: steps.check.outputs.update_needed == 'true'
