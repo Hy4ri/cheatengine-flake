@@ -107,15 +107,26 @@ jobs:
 
       - name: Close resolved failure issues
         if: steps.check.outcome == 'success' && (steps.build_verify.outcome == 'success' || steps.check.outputs.update_needed != 'true')
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           LABEL="auto-failure"
           gh label create "$LABEL" --repo "$GITHUB_REPOSITORY" 2>/dev/null || true
-          OPEN=$(gh issue list --repo "$GITHUB_REPOSITORY" --label "$LABEL" --state open --json number --jq '.[].number')
+          OPEN=""
+          for attempt in 1 2 3; do
+            if OPEN=$(gh issue list --repo "$GITHUB_REPOSITORY" --label "$LABEL" --state open --json number --jq '.[].number'); then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::warning::Failed to list open $LABEL issues after 3 attempts; skipping auto-close."
+              exit 0
+            fi
+            sleep 5
+          done
           for n in $OPEN; do
             echo "Closing auto-failure issue #$n (workflow succeeded again)"
-            gh issue close "$n" --repo "$GITHUB_REPOSITORY" --comment "The Update Cheat Engine workflow succeeded again — closing automatically."
+            gh issue close "$n" --repo "$GITHUB_REPOSITORY" --comment "The Update Cheat Engine workflow succeeded again — closing automatically." || echo "::warning::Failed to close issue #$n"
           done
 
       # continue-on-error above would let the job pass; fail the run when check or build failed.
