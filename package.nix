@@ -40,7 +40,7 @@
   makeDesktopItem,
 }:
 let
-  version = "7.71";
+  version = "7.73";
   pname = "cheatengine";
 
   desktopItem = makeDesktopItem {
@@ -97,7 +97,7 @@ stdenv.mkDerivation {
     url = "https://cheatengine.org/download/CheatEngineLinux${
       lib.replaceStrings [ "." ] [ "" ] version
     }.zip";
-    hash = "sha256-D7DZBDroVqzeA7W4caLzYn689nSurNBF+G1W2RoH8Xc=";
+    hash = "sha256-M2dqvTt5/vo/YudxLlUpry/Rp0eQ8ITjlQWSrJ6WEME=";
   };
 
   nativeBuildInputs = [
